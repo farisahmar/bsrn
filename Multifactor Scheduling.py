@@ -27,53 +27,76 @@ class Prozess:
         self.ankunftszeit = ankunftszeit
 
 # Prozesse in Warteschlange 1 hinzufügen
-def prozesse_in_warteschlange_hinzufuegen(aktuelle_zeit, prozesse, warteschlangen):
+def prozesse_in_warteschlange_hinzufuegen(aktuelle_zeit, prozesse, warteschlangen, hinzugefuegte_prozesse):
     for prozess in prozesse:
-        if aktuelle_zeit == prozess.ankunftszeit:
+        # Überprüfen, ob der Prozess an der aktuellen Zeit ankommt und noch nicht hinzugefügt wurde
+        if aktuelle_zeit >= prozess.ankunftszeit and prozess not in hinzugefuegte_prozesse:
             print(f"{aktuelle_zeit}ms: Prozess {prozess.name} ist angekommen und in Warteschlange 1 eingereiht.")
+            # Prozess in Warteschlange 1 einreihen
             warteschlangen[0].append(prozess)
+            # Prozess zur Liste der hinzugefügten Prozesse hinzufügen
+            hinzugefuegte_prozesse.append(prozess)
 
 # Round Robin Scheduling
-def round_robin_scheduling(warteschlangen, quantum, prozesse):
+def round_robin_scheduling(warteschlangen, quantum, prozesse, hinzugefuegte_prozesse):
     aktuelle_zeit = 0
+    # Gesamtlaufzeit aller Prozesse berechnen
     gesamtlaufzeit = sum(prozess.laufzeit for prozess in prozesse)
 
-
+    # Hauptschleife, die läuft, solange es Prozesse gibt
     while aktuelle_zeit < gesamtlaufzeit:
-        prozesse_in_warteschlange_hinzufuegen(aktuelle_zeit, prozesse, warteschlangen)
-        aktuelle_zeit += 1
+        # Prozesse der aktuellen Zeit zur ersten Warteschlange hinzufügen
+        prozesse_in_warteschlange_hinzufuegen(aktuelle_zeit, prozesse, warteschlangen, hinzugefuegte_prozesse)
 
+        # Schleife durch alle Warteschlangen
         for i, warteschlange in enumerate(warteschlangen):
+            # Wenn die Warteschlange nicht leer ist
             if warteschlange:
+                # Quantum der aktuellen Warteschlange abrufen
                 current_quantum = quantum[i]
+                # Ersten Prozess aus der Warteschlange holen
                 prozess = warteschlange.pop(0)
                 laufzeit_vorher = prozess.laufzeit
+
+                # Reduzieren der Laufzeit des Prozesses um das Quantum
                 for j in range(current_quantum):
-                    prozess.laufzeit -= 1
+                    if prozess.laufzeit > 0:
+                        prozess.laufzeit -= 1
+                        # Ausgabe jeder Millisekunde
+                        print(f"{aktuelle_zeit}ms: Prozess {prozess.name} läuft für 1ms (Restlaufzeit: {prozess.laufzeit}ms)")
+                        aktuelle_zeit += 1
+
+                # Gelaufene Zeit berechnen
                 gelaufene_zeit = min(current_quantum, laufzeit_vorher)
 
+                # Wenn der Prozess noch Laufzeit hat
                 if prozess.laufzeit > 0:
+                    # Wenn es eine tiefere Warteschlange gibt
                     if i < len(warteschlangen) - 1:
+                        # Prozess in die nächst tiefere Warteschlange verschieben
                         warteschlangen[i + 1].append(prozess)
-                        print(f"{aktuelle_zeit}ms: Prozess {prozess.name} läuft für {gelaufene_zeit}ms (Restlaufzeit: {prozess.laufzeit}ms)")
                         print(f"{aktuelle_zeit}ms: Prozess {prozess.name} ist in Warteschlange {i + 2} verschoben worden")
                     else:
+                        # Prozess bleibt in der letzten Warteschlange
                         warteschlangen[i].append(prozess)
-                        print(f"{aktuelle_zeit}ms: Prozess {prozess.name} läuft für {gelaufene_zeit}ms (Restlaufzeit: {prozess.laufzeit}ms)")
                         print(f"{aktuelle_zeit}ms: Prozess {prozess.name} bleibt in der letzten Warteschlange")
                 else:
-                    print(f"{aktuelle_zeit}ms: Prozess {prozess.name} läuft für {gelaufene_zeit}ms (Restlaufzeit: 0ms)")
+                    # Wenn der Prozess abgeschlossen ist
                     print(f"{aktuelle_zeit}ms: Prozess {prozess.name} wurde abgeschlossen")
 
-
-                break  # Beende die innere Schleife, um die aktuelle Zeit zu aktualisieren
+                # Beende die innere Schleife, um die aktuelle Zeit zu aktualisieren
+                break
         else:
-            aktuelle_zeit += 1  # Erhöhe die aktuelle Zeit, wenn keine Prozesse bearbeitet wurden
+            # Erhöhe die aktuelle Zeit, wenn keine Prozesse bearbeitet wurden
+            aktuelle_zeit += 1
 
-# Initialisierung
+# Initialisierung der Liste der hinzugefügten Prozesse
+hinzugefuegte_prozesse = []
+
+# Initialisierung der Warteschlangen
 warteschlangen = erstelle_warteschlangen(warteschlangen_gesamt)
 
-# Prozessbeispiele erstellen
+# Beispielprozesse erstellen
 prozesse = [
     Prozess("A", 8, 0),
     Prozess("B", 4, 1),
@@ -81,4 +104,4 @@ prozesse = [
 ]
 
 # Round Robin Scheduling ausführen
-round_robin_scheduling(warteschlangen, quantum, prozesse)
+round_robin_scheduling(warteschlangen, quantum, prozesse, hinzugefuegte_prozesse)
