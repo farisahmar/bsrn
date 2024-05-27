@@ -1,0 +1,163 @@
+import argparse
+import sys
+from collections import deque
+import matplotlib.pyplot as plt
+
+class Process:
+    def __init__(self, name, burst_time, arrival_time):
+        self.name = name
+        self.burst_time = burst_time
+        self.arrival_time = arrival_time
+        self.remaining_time = burst_time
+        self.waiting_time = 0
+        self.turnaround_time = 0
+        self.start_time = -1
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(description='Multilevel-Feedback-Queue Scheduler')
+    parser.add_argument('-warteschlangen', type=int, help='Number of queues')
+    parser.add_argument('-quantum', nargs='+', type=int, help='Time quanta for each queue')
+    parser.add_argument('-processlistfile', type=str, required=True, help='Input file for process list')
+    parser.add_argument('-logdatei', type=str, required=True, help='Log file path')
+    parser.add_argument('-ausgabeformat', choices=['text', 'grafisch'], required=True, help='Output format')
+    parser.add_argument('-ausgabedatei', type=str, required=True, help='Output file path')
+    return parser.parse_args()
+
+def get_interactive_input():
+    try:
+        num_queues = int(input("Geben Sie die Anzahl der Warteschlangen ein: "))
+        quanta = []
+        for i in range(num_queues):
+            quantum = int(input(f"Geben Sie das Zeitquantum für Warteschlange {i + 1} ein: "))
+            quanta.append(quantum)
+        return num_queues, quanta
+    except ValueError:
+        print("Ungültige Eingabe. Bitte geben Sie eine gültige Zahl ein.")
+        sys.exit(1)
+
+def read_processes(filename):
+    processes = []
+    try:
+        with open(filename, 'r') as file:
+            for line in file:
+                parts = line.strip().split()
+                if len(parts) != 3:
+                    raise ValueError(f"Invalid line format: {line.strip()}")
+                name = parts[0]
+                burst_time = int(parts[1])
+                arrival_time = int(parts[2])
+                processes.append(Process(name, burst_time, arrival_time))
+    except FileNotFoundError:
+        print(f"Error: File {filename} not found.")
+        sys.exit(1)
+    except ValueError as e:
+        print(f"Error reading file {filename}: {e}")
+        sys.exit(1)
+    return processes
+
+def mlfq_scheduler(processes, num_queues, quanta, log_file, output_format, output_file):
+    queues = [deque() for _ in range(num_queues)]
+    current_time = 0
+    log_entries = []
+    completed_processes = []
+
+    while processes or any(queue for queue in queues):
+        # Add arriving processes to the first queue
+        for process in processes[:]:
+            if process.arrival_time <= current_time:
+                queues[0].append(process)
+                processes.remove(process)
+                log_entries.append(f'Time {current_time}: Process {process.name} arrives and enters Queue 1')
+
+        # Execute processes in the queues
+        executed = False
+        for i in range(num_queues):
+            if queues[i]:
+                process = queues[i].popleft()
+                if process.start_time == -1:
+                    process.start_time = current_time
+
+                time_slice = min(process.remaining_time, quanta[i])
+                log_entries.append(f'Time {current_time}: Process {process.name} runs for {time_slice} time units in Queue {i+1}')
+                process.remaining_time -= time_slice
+                current_time += time_slice
+
+                if process.remaining_time == 0:
+                    process.turnaround_time = current_time - process.arrival_time
+                    process.waiting_time = process.turnaround_time - process.burst_time
+                    completed_processes.append(process)
+                    log_entries.append(f'Time {current_time}: Process {process.name} completes')
+                else:
+                    if i < num_queues - 1:
+                        queues[i+1].append(process)
+                        log_entries.append(f'Time {current_time}: Process {process.name} moves to Queue {i+2}')
+                    else:
+                        queues[i].append(process)
+                executed = True
+                break
+
+        if not executed:
+            current_time += 1  # Increment time if no process is executed
+
+    # Write log entries to log file
+    try:
+        with open(log_file, 'w') as logf:
+            for entry in log_entries:
+                logf.write(entry + '\n')
+    except IOError as e:
+        print(f"Error writing to log file {log_file}: {e}")
+        sys.exit(1)
+
+    # Generate output
+    if output_format == 'text':
+        try:
+            with open(output_file, 'w') as outf:
+                for process in completed_processes:
+                    outf.write(f'Process {process.name}: Turnaround Time = {process.turnaround_time}, Waiting Time = {process.waiting_time}\n')
+                avg_turnaround_time = sum(p.turnaround_time for p in completed_processes) / len(completed_processes)
+                avg_waiting_time = sum(p.waiting_time for p in completed_processes) / len(completed_processes)
+                outf.write(f'Average Turnaround Time = {avg_turnaround_time}\n')
+                outf.write(f'Average Waiting Time = {avg_waiting_time}\n')
+        except IOError as e:
+            print(f"Error writing to output file {output_file}: {e}")
+            sys.exit(1)
+    elif output_format == 'grafisch':
+        try:
+            fig, gnt = plt.subplots()
+            gnt.set_xlabel('Time')
+            gnt.set_ylabel('Processes')
+            gnt.set_yticks([10 * (i + 1) for i in range(len(completed_processes))])
+            gnt.set_yticklabels([p.name for p in completed_processes])
+            gnt.grid(True)
+
+            for process in completed_processes:
+                gnt.broken_barh([(process.start_time, process.burst_time)], (10 * (completed_processes.index(process) + 1), 9), facecolors='tab:blue')
+
+            plt.savefig(output_file)
+        except Exception as e:
+            print(f"Error generating graphical output: {e}")
+            sys.exit(1)
+
+def main():
+    args = parse_arguments()
+
+    if args.warteschlangen is None or args.quantum is None:
+        print("Kommandozeilenargumente für Warteschlangen oder Zeitquantum fehlen. Wechseln zur interaktiven Eingabe.")
+        num_queues, quanta = get_interactive_input()
+    else:
+        num_queues = args.warteschlangen
+        quanta = args.quantum
+
+    if len(quanta) != num_queues:
+        print("Error: The number of time quanta must match the number of queues.")
+        sys.exit(1)
+
+    processes = read_processes(args.processlistfile)
+    if not processes:
+        print("No valid processes to schedule.")
+        sys.exit(1)
+
+    mlfq_scheduler(processes, num_queues, quanta, args.logdatei, args.ausgabeformat, args.ausgabedatei)
+
+if __name__ == "__main__":
+    main()
