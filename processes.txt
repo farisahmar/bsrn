@@ -4,9 +4,9 @@
 # Die Prozess-ID ist wie eine Nummer für jeden Prozess und hilft uns, sie auseinanderzuhalten und zu verwalten.
 
 # Beispiel:
-1 0 5
-2 2 3
-3 4 2
+"A" 8 0 
+"B" 4 1
+"C" 13 5
 
 # Dieses Format ermöglicht eine einfache Zuordnung der Werte zu jedem Prozess:
 # - Die erste Zahl ist die Prozess-ID, die den Prozess eindeutig identifiziert.
