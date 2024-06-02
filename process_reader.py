@@ -10,7 +10,7 @@ class Process:
 
     def __repr__(self):
         # Hier wird festgelegt, wie der Computer den Prozess anzeigen soll, wenn wir ihn sehen wollen.
-        return f"Process(Name: {self.name}, Ankunftszeit: {self.ankunftszeit}, Laufzeit: {self.laufzeit})"
+        return f'("{self.name}", {self.ankunftszeit}, {self.laufzeit})'
 
 def read_processes_from_file(file_path):
     # Hier wird dem Computer erklärt, wie er Prozessinfos aus einer Datei lesen soll.
