@@ -8,9 +8,9 @@ import matplotlib.pyplot as plt #Grafische Ausgaben, falls notwendig
 #Parsen = Analyse der Eingabedateien und diese in eine strukturierte Form zu bringen. Die das Programm verarbeiten kann
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Simulator für das Multilevel-Feedback-Scheduling')
-    parser.add_argument('-ausgabeformat', type=str, choices=['text', 'grafisch'], required=True, help='Ausgabeformat')
-    parser.add_argument('-ausgabedatei', type=str, required=True, help='Datei für die Ausgabe')
-    parser.add_argument('-logdatei', type=str, required=True, help='Datei für Logdaten')
+    parser.add_argument('-outputformat', type=str, choices=['text', 'grafisch'], required=True, help='Ausgabeformat')
+    parser.add_argument('-outputfile', type=str, required=True, help='Datei für die Ausgabe')
+    parser.add_argument('-logfile', type=str, required=True, help='Datei für Logdaten')
     return parser.parse_args()
 
 args = parse_arguments() #ist Aufruf der Funktion zum Parsen der Argumente
@@ -18,35 +18,36 @@ args = parse_arguments() #ist Aufruf der Funktion zum Parsen der Argumente
 #Funktion zum Schreiben der Logdatei
 #def schreibe_log(dateiname, logs):
    # with open(dateiname, 'w') as file:
-        for zeile in ergebnisse: 
-            file.write(zeile + '\n')
+        for line in result: 
+            file.write(line + '\n')
 
 #Funktion zum Schreiben von Ergebnissen in eine Textdatei
-def schreibe_ergebnisse_text(dateiname, ergebnisse):
+def write_result_text(filename, result):
     with open(dateiname, 'w') as file:
-        for zeile in ergebnisse:
-            file.write(zeile + '\n')
+        for line in result:
+            file.write(line + '\n')
 
 # Funktion zum Erstellen eines Gantt-Diagramms und Speichern als Bilddatei
-def erstelle_gantt_chart(dateiname, prozesse):
+def create_gantt_chart(filename, process):
     fig, gnt = plt.subplots()  # Erstellt eine neue Figur und ein Achsenobjekt
-    gnt.set_xlabel('Zeit')  # Setzt das Label der x-Achse
-    gnt.set_ylabel('Prozesse')  # Setzt das Label der y-Achse
+    gnt.set_xlabel('Time')  # Setzt das Label der x-Achse
+    gnt.set_ylabel('Processes')  # Setzt das Label der y-Achse
 
-    for prozess in prozesse:  # Iteriert über alle Prozesse
+    for process in processes:  # Iteriert über alle Prozesse
         # Erstellt eine Zeitbalken (Broken Bar) für jeden Prozess
-        gnt.broken_barh([(prozess['start'], prozess['dauer'])], (prozess['reihe'], 9), facecolors=('tab:blue'))
+        #time = dauer
+        gnt.broken_barh([(process['start'], process['time'])], (process['row'], 9), facecolors=('tab:blue'))
 
-    plt.savefig(dateiname)  # Speichert das Diagramm als Bilddatei
+    plt.savefig(filename)  # Speichert das Diagramm als Bilddatei
 
 # Funktion zum Speichern der Ergebnisse basierend auf dem Ausgabeformat
-def speichere_ergebnisse(args, ergebnisse, logs):
-    if args.ausgabeformat == 'text':  # Überprüft, ob das Ausgabeformat Text ist
-        schreibe_ergebnisse_text(args.ausgabedatei, ergebnisse)  # Ruft die Funktion zum Schreiben der Textdatei auf
-    elif args.ausgabeformat == 'grafisch':  # Überprüft, ob das Ausgabeformat grafisch ist
-        erstelle_gantt_chart(args.ausgabedatei, ergebnisse)  # Ruft die Funktion zum Erstellen des Gantt-Diagramms auf
+def save_result(args, result, logs):
+    if args.outputformat == 'text':  # Überprüft, ob das Ausgabeformat Text ist
+        write_result_text(args.outputfile, result)  # Ruft die Funktion zum Schreiben der Textdatei auf
+    elif args.outputformat == 'grafisch':  # Überprüft, ob das Ausgabeformat grafisch ist
+        create_gantt_chart(args.outputfile, result)  # Ruft die Funktion zum Erstellen des Gantt-Diagramms auf
     
-    schreibe_log(args.logdatei, logs)  # Ruft die Funktion zum Schreiben der Logdatei auf
+    write_log(args.logfile, logs)  # Ruft die Funktion zum Schreiben der Logdatei auf
 
 # Hauptfunktion zum Ausführen des Skripts
 #if __name__ == "__main__":
@@ -68,7 +69,7 @@ def speichere_ergebnisse(args, ergebnisse, logs):
     #    {'name': 'P2', 'start': 5, 'dauer': 3, 'reihe': 20}
    # ]
 
-    speichere_ergebnisse(args, ergebnisse, logs)  # Aufruf der Funktion zum Speichern der Ergebnisse und Logs
+    save_result(args, result, logs)  # Aufruf der Funktion zum Speichern der Ergebnisse und Logs
 
 
     
