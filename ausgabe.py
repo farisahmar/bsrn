@@ -23,7 +23,7 @@ args = parse_arguments() #ist Aufruf der Funktion zum Parsen der Argumente
 
 #Funktion zum Schreiben von Ergebnissen in eine Textdatei
 def write_result_text(filename, result):
-    with open(dateiname, 'w') as file:
+    with open(filename, 'w') as file:
         for line in result:
             file.write(line + '\n')
 
