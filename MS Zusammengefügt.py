@@ -109,4 +109,4 @@ hinzugefuegte_prozesse = []
 warteschlangen = erstelle_warteschlangen(warteschlangen_gesamt)
 
 # Round Robin Scheduling ausführen
-round_robin_scheduling(warteschlangen, quantum, processes, hinzugefuegte_prozesse)  # Übergabe der Liste 'processes'
+round_robin_scheduling(warteschlangen, quantum, processes, hinzugefuegte_prozesse)  # Übergabe der Liste `processes`, `warteschlangen`, `hinzugefuegte_prozesse`, und `quantum`
