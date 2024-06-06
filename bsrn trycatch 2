@@ -1,0 +1,118 @@
+import argparse
+import sys
+from collections import deque
+
+class Process:
+    def __init__(self, name, burst_time, arrival_time):
+        self.name = name
+        self.burst_time = burst_time
+        self.remaining_time = burst_time
+        self.arrival_time = arrival_time
+        self.waiting_time = 0
+        self.turnaround_time = 0
+
+def get_quantum_for_queues(warteschlangen_gesamt):
+    quantum = []
+    for number in range(1, warteschlangen_gesamt + 1):
+        while True:
+            try:
+                quantum_value = int(input(f"Gib den Quantum der {number}. Warteschlange an: "))
+                if quantum_value <= 0:
+                    raise ValueError("Quantum muss eine positive Zahl sein.")
+                quantum.append(quantum_value)
+                break
+            except ValueError as e:
+                print(f"Ungültige Eingabe: {e}. Bitte versuchen Sie es erneut.")
+    return quantum
+
+def read_processes_from_file(file_path):
+    processes = []
+    try:
+        with open(file_path, 'r') as file:
+            lines = file.readlines()
+            for line in lines:
+                parts = line.split()
+                if len(parts) == 3:
+                    name = parts[0]
+                    try:
+                        burst_time = int(parts[1])
+                        arrival_time = int(parts[2])
+                        processes.append(Process(name, burst_time, arrival_time))
+                    except ValueError as e:
+                        print(f"Fehler beim Lesen der Prozessdaten: {e}")
+    except Exception as e:
+        print(f"Fehler beim Lesen der Datei: {e}")
+    return processes
+
+def erstelle_warteschlangen(num_queues):
+    return [deque() for _ in range(num_queues)]
+
+def prozesse_in_warteschlange_hinzufuegen(aktuelle_zeit, prozesse, warteschlangen, hinzugefuegte_prozesse):
+    for prozess in prozesse:
+        if aktuelle_zeit >= prozess.arrival_time and prozess not in hinzugefuegte_prozesse:
+            print(f"{aktuelle_zeit}ms: Prozess {prozess.name} ist angekommen und in Warteschlange 1 eingereiht.")
+            warteschlangen[0].append(prozess)
+            hinzugefuegte_prozesse.append(prozess)
+
+def round_robin_scheduling(warteschlangen, quantum, prozesse, hinzugefuegte_prozesse):
+    aktuelle_zeit = 0
+    gesamtlaufzeit = sum(prozess.burst_time for prozess in prozesse)
+
+    while any(warteschlange for warteschlange in warteschlangen) or aktuelle_zeit < gesamtlaufzeit:
+        prozesse_in_warteschlange_hinzufuegen(aktuelle_zeit, prozesse, warteschlangen, hinzugefuegte_prozesse)
+
+        prozess_gelaufen = False
+
+        for i, warteschlange in enumerate(warteschlangen):
+            if warteschlange:
+                current_quantum = quantum[i]
+                prozess = warteschlange.popleft()
+
+                for _ in range(current_quantum):
+                    if prozess.remaining_time > 0:
+                        prozess.remaining_time -= 1
+                        aktuelle_zeit += 1
+                        print(f"{aktuelle_zeit}ms: Prozess {prozess.name} läuft für 1ms (Restlaufzeit: {prozess.remaining_time}ms)")
+                        prozess_gelaufen = True
+                        if aktuelle_zeit >= gesamtlaufzeit:
+                            break
+
+                if prozess.remaining_time > 0:
+                    if i < len(warteschlangen) - 1:
+                        warteschlangen[i + 1].append(prozess)
+                        print(f"{aktuelle_zeit}ms: Prozess {prozess.name} ist in Warteschlange {i + 2} verschoben worden")
+                    else:
+                        warteschlangen[i].append(prozess)
+                        print(f"{aktuelle_zeit}ms: Prozess {prozess.name} bleibt in der letzten Warteschlange")
+                else:
+                    print(f"{aktuelle_zeit}ms: Prozess {prozess.name} wurde abgeschlossen")
+
+                break
+
+        if not prozess_gelaufen:
+            aktuelle_zeit += 1
+
+if __name__ == "__main__":
+    try:
+        warteschlangen_gesamt = int(input("Gib die Anzahl der Warteschlangen an: "))
+        if warteschlangen_gesamt <= 0:
+            raise ValueError("Die Anzahl der Warteschlangen muss eine positive Zahl sein.")
+        
+        quantum = get_quantum_for_queues(warteschlangen_gesamt)
+
+        file_path = input("Geben Sie den Pfad der Textdatei an: ")
+        processes = read_processes_from_file(file_path)
+
+        print("Processes read from file:")
+        for process in processes:
+            print(f"Name: {process.name}, Laufzeit: {process.burst_time}, Ankunftszeit: {process.arrival_time}")
+
+        hinzugefuegte_prozesse = []
+
+        warteschlangen = erstelle_warteschlangen(warteschlangen_gesamt)
+
+        round_robin_scheduling(warteschlangen, quantum, processes, hinzugefuegte_prozesse)
+    except ValueError as e:
+        print(f"Ungültige Eingabe: {e}")
+    except Exception as e:
+        print(f"Ein unerwarteter Fehler ist aufgetreten: {e}")
