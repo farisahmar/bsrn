@@ -3,6 +3,7 @@ für eine bestimmte Anzahl an Prozessen berechnen und entweder als Gantt-Diagram
 Prozesse sowie deren Lauf- und Ankunftszeiten frei festlegen.
 
 Der Simulator erfüllt folgende spezifische Anforderungen:
+
 •	Das Programm wird als Kommandozeilenanwendung entwickelt.
 •	Der Quellcode wird mit Kommentaren versehen, um die Verständlichkeit zu erhöhen.
 •	Benutzer können die Anzahl der Warteschlangen und deren Zeitquantum interaktiv und über Kommandozeilenargumente festlegen (z.B. -warteschlangen 4 -quantum 1 2 5 10).
@@ -15,6 +16,7 @@ Der Simulator erfüllt folgende spezifische Anforderungen:
 •	Fehlerhafte Kommandozeilenargumente werden erkannt und durch entsprechende Fehlermeldungen und/oder Programmabbruch behandelt.
 
 Die Simulation des Multilevel-Feedback-Scheduling erfüllt folgende spezifische Anforderungen:
+
 •	Innerhalb der Warteschlangen wird das Round-Robin-Verfahren eingesetzt.
 •	Es werden keine Prozessprioritäten oder Zeitmultiplexe implementiert.
 •	Neue Prozesse werden in die erste Warteschlange eingereiht.
@@ -23,6 +25,7 @@ Die Simulation des Multilevel-Feedback-Scheduling erfüllt folgende spezifische 
 •	Höhere Warteschlangen haben Vorrang vor niedrigeren Warteschlangen.
 
 Im zweiten Teil der Aufgabe werden Grundfunktionen implementiert, die folgende spezifische Anforderungen erfüllen:
+
 •	Bereitstellung einer Menüauswahl, um Funktionen des Programms auszuwählen.
 •	Verwendung einer Befehlszeilenschnittstelle (CLI) für die Ein- und Ausgabe.
 •	Einlesen der Prozesse aus einer Datei (processes.txt), die die Prozess-ID, Ankunftszeit und Burst-Zeit enthält.
