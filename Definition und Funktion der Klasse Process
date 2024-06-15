@@ -1,0 +1,7 @@
+Die Klasse Process dient zur Speicherung von Informationen über jeden Prozess, die für das Multilevel-Feedback-Scheduling benötigt werden.
+Sie definiert die grundlegenden Eigenschaften eines Prozesses wie Name, Ankunftszeit und Laufzeit.
+
+•	Zeile 1: Die Klasse Process wird definiert.
+•	Zeilen 3-6: Der Konstruktor __init__ initialisiert die Attribute name, ankuftszeit und laufzeit. 
+•	Zeile 7-9: Die Parameter name, ankunftszeit und laufzeit werden den entsprechenden Attributen des Objekts zugewiesen.
+•	Zeilen 11-12: Die Methode __repr__ legt fest, wie der Prozess dargestellt wird, wenn er ausgegeben wird.
