@@ -1,0 +1,34 @@
+Das Werkstück A – Alternative 2 besteht aus der Entwicklung eines Simulators für das Multilevel-Feedback-Scheduling. Der Simulator soll die Ausführungsreihenfolge
+für eine bestimmte Anzahl an Prozessen berechnen und entweder als Gantt-Diagramm oder in einer anderen geeigneten Form ausgeben. Der Benutzer kann die Anzahl der 
+Prozesse sowie deren Lauf- und Ankunftszeiten frei festlegen.
+
+Der Simulator erfüllt folgende spezifische Anforderungen:
+•	Das Programm wird als Kommandozeilenanwendung entwickelt.
+•	Der Quellcode wird mit Kommentaren versehen, um die Verständlichkeit zu erhöhen.
+•	Benutzer können die Anzahl der Warteschlangen und deren Zeitquantum interaktiv und über Kommandozeilenargumente festlegen (z.B. -warteschlangen 4 -quantum 1 2 5 10).
+•	Prozesse werden über eine Eingabedatei definiert, deren Pfad und Name per Kommandozeilenargument angegeben werden (z.B. -processlistfile <dateiname>).
+•	Jeder Prozess in der Eingabedatei enthält drei Attribute: Name (oder Nummer), CPU-Laufzeit und Ankunftszeit.
+•	Die Ausführungsreihenfolge der Prozesse wird als Gantt-Diagramm oder in einer anderen geeigneten Form ausgegeben, unter Verwendung einer passenden Bibliothek für grafische Ausgaben.
+•	Die Ausgabe umfasst auch Lauf- und Wartezeiten der Prozesse sowie deren Durchschnittswerte.
+•	Die Ergebnisse werden in eine Ausgabedatei geschrieben, deren Pfad und Name per Kommandozeilenargument definiert werden (z.B. -ausgabedatei <dateiname>).
+•	Alle Schritte beim Scheduling werden in einer Logdatei dokumentiert, deren Pfad und Name per Kommandozeilenargument angegeben werden (z.B. -logdatei <dateiname>).
+•	Fehlerhafte Kommandozeilenargumente werden erkannt und durch entsprechende Fehlermeldungen und/oder Programmabbruch behandelt.
+
+Die Simulation des Multilevel-Feedback-Scheduling erfüllt folgende spezifische Anforderungen:
+•	Innerhalb der Warteschlangen wird das Round-Robin-Verfahren eingesetzt.
+•	Es werden keine Prozessprioritäten oder Zeitmultiplexe implementiert.
+•	Neue Prozesse werden in die erste Warteschlange eingereiht.
+•	Bei Verdrängung wird ein Prozess in die nächst tiefere Warteschlange verschoben, bis er die tiefste Warteschlange erreicht.
+•	Prozesse werden in der Reihenfolge ihrer Ankunft in den Warteschlangen bearbeitet.
+•	Höhere Warteschlangen haben Vorrang vor niedrigeren Warteschlangen.
+
+Im zweiten Teil der Aufgabe werden Grundfunktionen implementiert, die folgende spezifische Anforderungen erfüllen:
+•	Bereitstellung einer Menüauswahl, um Funktionen des Programms auszuwählen.
+•	Verwendung einer Befehlszeilenschnittstelle (CLI) für die Ein- und Ausgabe.
+•	Einlesen der Prozesse aus einer Datei (processes.txt), die die Prozess-ID, Ankunftszeit und Burst-Zeit enthält.
+•	Scheduling der Prozesse gemäß den Regeln des Multilevel-Feedback-Scheduling.
+•	Ausgabe der Ausführungsreihenfolge der Prozesse sowie deren Lauf- und Wartezeiten als Gantt-Diagramm und Speicherung in einer Ausgabedatei.
+•	Protokollierung aller Schritte des Scheduling-Prozesses in einer Logdatei.
+•	Speichern der Ergebnisse in einer Datei.
+•	Laden der Ergebnisse aus einer Datei.
+•	Vor dem Beenden des Programms Freigabe der vom Betriebssystem zugewiesenen Ressourcen.
