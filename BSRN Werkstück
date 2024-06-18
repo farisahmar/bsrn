@@ -1,0 +1,76 @@
+import os
+import matplotlib.pyplot as plt
+import argpase
+
+#Klasse zur Darstellung eines Prozesses
+class Process:
+	def __init__(self, name, burst_time, arrival_time):
+	#Intialisierung der Prozessattribute
+	self.name = name #Name des Prozesses
+	self.burst_time = burst_time #Gesamtlaufzeit des Prozesses
+	self.remaining_time = burst_time #Verbleibende Laufzeit des Prozesses
+	self.arrival_time = arrival_time #Ankunftszeit des Prozesses
+	self.waiting_time = 0 #Wartezeit des Prozesses
+	self.turnaround_time = 0 #Durchlaufzeit des Prozesses
+	
+
+#Funktion zur Eingabe der Quantums für jede Warteschlange
+def get_quantum_for_queues(warteschlangen_gesamt, input_quantum=None):
+	quantum = [] #Liste zur Speicherung der Quantums
+	if input_quantum:
+		#Wenn Quantums über Kommandozeilenargumente bereitgestellt werden
+		for q in input_quantum:
+			quantum_value = int(q)
+			if quantum_value <= 0: 
+				raise ValueError("Quantum muss eine positive Zahl sein.")
+			qauntum.append(quantum_value) #Hinzufügen des Quantum-Werts zur Liste
+		if len(quantum) != warteschlangen_gesamt:
+			raise ValueError("Die Anzahl der Quantums muss der Anzahl der Warteschlangen entsprechen.")
+	else:
+		#Interaktive Eingabe der Quantums
+		for number in range(1, warteschlangen_gesamt +1):
+			while True:
+				try:
+					quantum_value = int(input(f"Gib den Quantum der {number}. Warteschlange an: "))
+					if quantum_value <= 0:
+						raise ValueError("Quantum muss eine positive Zahl sein.")
+					quantum.append(quantum_value) #Hinzufügen des Quantum-Werts zur Liste
+					break
+				except ValueError as e:
+					print(f"Ungültige Eingabe: {e}. Bitte versuchen Sie es erneut.")
+	return quantum
+	
+#Funktion zum Einlesen der Prozesse aus einer Datei
+def read_processes_from_file(file_path):
+	processes = [] #Einlesen aller zeilen der Datei
+	try:
+		with open(file_path, 'r') as file:
+			lines = file.readlines() #Einlesen aller Zeilen der Datei
+			for line in lines:
+				parts = line.split #Aufteilen der Zeile in einzelnen Teile
+				if len(parts) == 3:
+				name =parts [0] #Name des Prozesses
+				try:
+					burst_time = int(parts[1]) #Laufzeit des Prozesses
+					arrival_time = int(parts[2] #Ankunftszeit des Prozesses
+					processes.append(Process(name, burst_time, arrival_time)) #Hinzufügen des Prozesses zur Liste
+				except ValueError as e:
+					print(f"Fehler beim Lesen der Prozessdaten: {e}")
+	except Exception as e:
+		print(f"Fehler beim Lesen der Prozessdaten")
+	return processes
+	
+#Funktion zum Erstellen der Warteschlangen
+def erstelle_warteschlangen(warteschlangen_gesamt):
+	return [[] for _ in range(warteschlangen_gesamt)] #Rückgabe einer Liste von leeren Listen, eine für jede Warteschlange
+
+#Funktion zum Hinzufügen von Prozessen in die Warteschlange
+def prozesse_in_warteschlange_hinzufuegen(aktuelle_zeit, prozesse, warteschlangen, hinzugefuegte_prozesse, log_file):
+	for prozess in prozesse:
+		if aktuelle_zeit >= prozess.arrival_time and not in hinzugefuegte_prozesse:
+		log_file.write(f"{aktuelle_zeit}ms: Prozess {prozess.name} ist angekommen und in Warteschlange 1 eingereiht.\n")
+		warteschlangen[0].append(prozess) #Hinzufügen des Prozesses zu ersten Warteschlange
+		hinzugefuegte_prozesse.append(prozess) #Markierung des Prozesses als hinzugefügt
+
+
+	
