@@ -72,5 +72,65 @@ def prozesse_in_warteschlange_hinzufuegen(aktuelle_zeit, prozesse, warteschlange
 		warteschlangen[0].append(prozess) #Hinzufügen des Prozesses zu ersten Warteschlange
 		hinzugefuegte_prozesse.append(prozess) #Markierung des Prozesses als hinzugefügt
 
-
+#Funktion zum Round-Robin-Scheduling
+def round_robin_scheudling(warteschlangen, quantum, prozesse, hinzugefuegte_prozesse, log_file):
+	aktuelle_zeit = 0 #Initialisierung der aktuellen Zeit
+	gesamtlaufzeit = sum(prozess.burst_time for prozess in prozesse) #Berechnung der Gesamtlaufzeit aller Prozesse
+	timeline_chart = [] #Liste zur Speicherungder Timeline-Daten
 	
+	while any(warteschlange for warteschlange in warteschlangen) or aktuelle_zeit < gesamtlaufzeit:
+	#Hinzufügen von Prozessen zur Warteschlange
+	prozesse_in_warteschlange_hinzufuegen(aktuelle_zeit, prozesse, warteschlangen, hinzugefuegte_prozesse, log_file)
+	prozess_gelaufen = False #Flag zur Überprüfung, ob ein Prozess in diesem Zyklus gelaufen ist
+	
+		for i, warteschlange in enumerate(warteschlangen):
+			if warteschlange:
+				current_quantum = quantum[i] #Aktuelles Quantum für die Warteschlange
+				prozess = warteschlange.pop(0) #Prozess aus der Warteschlange entfernen
+				
+				for _ in range(current_quantum):
+					if prozess.remaining_time > 0:
+						prozess.remaining_time -= 1 #Verbleibende Laufzeit des Prozesses verringern
+						aktuelle_zeit += 1 #Aktuelle Zeit erhöhen
+						timeline_chart.append((aktuelle_zeit, prozess.name. i + 1)) #Hinzufügen der Timeline_Daten
+						log_file.write(f"{aktuelle_zeit}ms: Prozess {prozess.name} läuft für 1ms(Restlaufzeit: {prozess.remaining_time}ms)\n)
+						prozess_gelaufen = True #Markierung, dass ein Prozess gelaufen ist
+						if aktuelle_zeit >= gesamtlaufzeit:
+							break
+							
+				if prozess.remaining_time > 0:
+					if i < len(warteschlangen) - 1
+						warteschlangen[i + 1].append(prozess) #Verschieben des Prozesses in die nächste Warteschlange
+						log_file.write(f"   Prozess {prozess.name} ist in Warteschlange {i + 2} verschoben worden\n")
+					else:
+						warteschlangen[i].append(prozess) #Prozess bleibt in der letzten Warteschlange
+						log_file.write(f" Prozess {prozess.name} wurde abgeschlossen\n")
+				else:
+					prozess.turnaround_time = aktuelle_zeit - prozess.arrival_time #Berechung der Durchlaufzeit
+					prozess.waiting_time = prozess.turnaround_time - prozess.burst_time #Berechnung der Wartezeit
+					log_file.write(f"   Prozess {prozess.name} wurde abgeschlossen\n")
+					
+				break #Schleife für die Warteschlangen beenden, wenn kein Prozess gefunden wurde
+				
+		if not prozess_gelaufen:
+			aktuelle_zeit += 1 #Erhöhung der aktuellen Zeit, wenn kein Prozess gelaufen ist
+
+	return timeline_chart
+	
+#Funktion zur Generierung von deutlich unterscheidbaren Farben
+def generate_distinct_colors(num_colors):
+	colors = plt.get_cmap('tab10', num_colors) #Nutzung der 'tab10' Farbkarte von matplotlib
+	return [colors(i) for in range(num_colors)] Rückgabe der Farben
+
+#Funktion zum Schreiben der Timeline-Diagramme in einer PNG-Datei
+def schreibe_timeline_diagramm(timeline_chart, prozesse, timeline_file_path):
+	zeiten = [zeit for zeit, _, _ in timeline_chart #Extraktion der Zeiten aus der Timeline
+	prozessnamen = [name for _, name, _ in timeline_chart] #Extraktion der Prozessnamen aus der Timeline
+	warteschlangen_indices = [queue for _, _, queue in timeline_chart] #Extraktion der Warteschlangen-Indizes aus der Timeline
+	
+	#Generiere unterscheidbare Farben für die Warteschlangen
+	warteschlange_farbe = {}
+	unique_queues = sorted(set(warteschlangen_indices)) #Identifikation der einzigartigen Warteschlangen
+	colors = generate_distinct_colors(len(unique_queues)) #Generierung von Farben für jede Warteschlange
+	
+	for queue, color in zip(unique_queues, colors):
