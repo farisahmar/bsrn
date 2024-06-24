@@ -14,19 +14,19 @@ class Process:
 	
 #Funktion zur Eingabe der Quantums für jede Warteschlange
 def get_quantum_for_queues(number_of_queues, CLI_quantum=None):
-	quantum = [] #Liste zur Speicherung der Quantums
+	quantum = [] #Liste zur Speicherung der Quanten
 	if CLI_quantum:
-		#Wenn Quantums über Kommandozeilenargumente bereitgestellt werden
-		for q in CLI_quantum:
+		#Wenn Quanten über Kommandozeilenargumente bereitgestellt werden
+		for q in CLI_quantum: # SChleife die über alle Quanten iteritiert, die über Kommandozeileargumente bereitgestellt wurden
 			quantum_value = int(q)
-			if quantum_value <= 0: 
+			if quantum_value <= 0: # Überprüfung ob das Quantum positiv ist
 				raise ValueError("Quantum muss eine positive Zahl sein.")
 			quantum.append(quantum_value) #Hinzufügen des Quantum-Werts zur Liste
 		if len(quantum) != number_of_queues:
 			raise ValueError("Die Anzahl der Quanten, muss die Anzahl der Warteschlangen entsprechen.")
 	else:
 		#Interaktive Eingabe der Quanten
-		for number in range(1, number_of_queues + 1):
+		for number in range(1, number_of_queues + 1): # Schleife die so oft abläuft, wie es Warteschlangen gibt.
 			while True:
 				try:
 					quantum_value = int(input(f"Gib den Quantum der {number}. Warteschlange an: "))
@@ -64,40 +64,43 @@ def generate_queue(number_of_queues):
 
 #Funktion zum Hinzufügen von Prozessen in die Warteschlange
 def add_process_to_queue(current_time, process_list, queue_list, added_processes, log_file):
-	for process in process_list:
-		if current_time >= process.arrival_time and process not in added_processes:
-			log_file.write(f"{current_time}ms: Prozess {process.name} ist angekommen und in Warteschlange 1 eingereiht.\n")
+	for process in process_list: # Schleife, die durch alle Prozesse iteritiert
+		if current_time >= process.arrival_time and process not in added_processes: # Überprüfung, ob die Ankunftszeit des Prozesses erreicht ist.
+			if current_time < 10:
+				log_file.write(f"{current_time}ms: Prozess {process.name} ist angekommen und in Warteschlange 1 eingereiht.\n")
+			else:
+				log_file.write(f"{current_time}ms:Prozess {process.name} ist angekommen und in Warteschlange 1 eingereiht.\n")
 			queue_list[0].append(process) #Hinzufügen des Prozesses zu ersten Warteschlange
-			added_processes.append(process) #Markierung des Prozesses als hinzugefügt
+			added_processes.append(process) #Markierung des Prozesses als hinzugefügt, um dopplungen zu verhindern
 
 #Funktion zum Round-Robin-Scheduling
 def round_robin_scheudling(queue_list, quantum, process_list, added_processes, log_file):
 	current_time = 0 #Initialisierung der aktuellen Zeit
-	total_runtime = sum(process.runtime for process in process_list) #Berechnung der Gesamtlaufzeit aller Prozesse
+	latest_arrival_time = max(process.arrival_time for process in process_list) # Ermittlung der spätesten Ankunftszeit
 	timeline_data = [] #Liste zur Speicherungder Timeline-Daten
-	
-	while any(queue for queue in queue_list) or current_time < total_runtime:
+
+	#while-Schleife, die solange läuft, wie es Prozesse in den Wartschlangen gibt und der Prozess, der als letzets ankommt in den Warteschlangen angekommen ist
+	while any(queue for queue in queue_list) or current_time <= latest_arrival_time:
 		#Hinzufügen von Prozessen zur Warteschlange
 		add_process_to_queue(current_time, process_list, queue_list, added_processes, log_file)
-		prozess_gelaufen = False #Flag zur Überprüfung, ob ein Prozess in diesem Zyklus gelaufen ist
-	
+		process_runned = False #Flag zur Überprüfung, ob ein Prozess in diesem Zyklus gelaufen ist
+
+		# SChleife, die über alle Warteschlangen iteritiert
 		for i, queue in enumerate(queue_list):
-			if queue:
+			if queue: # Überprüfung ob die Wrteschlange belegt ist
 				current_quantum = quantum[i] #Aktuelles Quantum für die Warteschlange
 				process = queue.pop(0) #Prozess aus der Warteschlange entfernen
-				
-				for j in range(current_quantum):
+				for j in range(current_quantum): # Schleife, die läuft so lange wie das Quantum der aktuellen Warteschlange groß ist
 					if process.remaining_time > 0:
 						process.remaining_time -= 1 #Verbleibende Laufzeit des Prozesses verringern
 						current_time += 1 #Aktuelle Zeit erhöhen
-						timeline_data.append((current_time, process.name, i + 1)) #Hinzufügen der Timeline_Daten
+						timeline_data.append((current_time, process.name, i + 1)) #Hinzufügen der Daten für die Timeline
 						if current_time < 10:
 							log_file.write(f"{current_time}ms: Prozess {process.name} läuft für 1ms(Restlaufzeit: {process.remaining_time}ms)\n")
 						else:
 							log_file.write(f"{current_time}ms:Prozess {process.name} läuft für 1ms(Restlaufzeit: {process.remaining_time}ms)\n")
-						prozess_gelaufen = True	# Markierung, dass ein Prozess gelaufen ist
-						if current_time >= total_runtime:
-							break
+						process_runned = True	# Markierung, dass ein Prozess gelaufen ist
+
 							
 				if process.remaining_time > 0:
 					if i < len(queue_list) - 1:
@@ -113,7 +116,7 @@ def round_robin_scheudling(queue_list, quantum, process_list, added_processes, l
 					
 				break #Schleife für die Warteschlangen beenden, wenn kein Prozess gefunden wurde
 				
-		if not prozess_gelaufen:
+		if not process_runned:
 			current_time += 1 #Erhöhung der aktuellen Zeit, wenn kein Prozess gelaufen ist
 
 	return timeline_data
