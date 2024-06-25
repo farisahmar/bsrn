@@ -74,10 +74,11 @@ def add_process_to_queue(current_time, process_list, queue_list, added_processes
 			added_processes.append(process) #Markierung des Prozesses als hinzugefügt, um dopplungen zu verhindern
 
 #Funktion zum Round-Robin-Scheduling
-def round_robin_scheudling(queue_list, quantum, process_list, added_processes, log_file):
+def round_robin_scheudling(queue_list, quantum, process_list, log_file):
 	current_time = 0 #Initialisierung der aktuellen Zeit
 	latest_arrival_time = max(process.arrival_time for process in process_list) # Ermittlung der spätesten Ankunftszeit
 	timeline_data = [] #Liste zur Speicherungder Timeline-Daten
+	added_processes = []
 
 	#while-Schleife, die solange läuft, wie es Prozesse in den Wartschlangen gibt und der Prozess, der als letzets ankommt in den Warteschlangen angekommen ist
 	while any(queue for queue in queue_list) or current_time <= latest_arrival_time:
@@ -212,9 +213,9 @@ def generate_logfile(log_file_path, number_of_queues, quantum, inputfile_path, t
 				f"Name: {process.name}, Laufzeit: {process.runtime}, Ankunftszeit: {process.arrival_time}\n") #Schreiben der Prozessinformationen in die Logdatei
 		log_file.write("\n")
 		
-		added_processes = []
+
 		queue_list = generate_queue(number_of_queues)
-		timeline_data = round_robin_scheudling(queue_list, quantum, processes, added_processes, log_file) #Durchführung des Round-Robin-Scheduling
+		timeline_data = round_robin_scheudling(queue_list, quantum, processes, log_file) #Durchführung des Round-Robin-Scheduling
 		
 		return timeline_data
 		
