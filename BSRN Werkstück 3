@@ -76,7 +76,62 @@ def round_robin_scheudling(warteschlangen, quantum, prozesse, hinzugefuegte_proz
 	aktuelle_zeit = 0 #Initialisierung der aktuellen Zeit
 	gesamtlaufzeit = sum(prozess.burst_time for prozess in prozesse) #Berechnung der Gesamtlaufzeit aller Prozesse
 	timeline_chart = [] #Liste zur Speicherungder Timeline-Daten
-	
+
+	#Hauptfunktion, die sowohl Kommandozeilenargumente als auch interaktive Eingaben unterstützt
+	def main():
+		parser = argparse.ArgumentParser(description = "Simuliert das Round-Robin-Scheduling von Prozessen.")
+		parser.add_argument('-warteschlangen', type = int, help = "Anzahl der Warteschlangen")
+		parser.add_argument('-quantum', type = int, nargs = '+', help = "Quanten pro Warteschlange")
+		parser.add_argument('-processlistfile', type = str, help = "Quanten pro Warteschlange")
+		parser.add_argument('-logdatei', type = str, help = "Pfad zur Logdatei")
+		parser.add_argument('-ausgabeformat', type = str, choices = ['text','grafisch'], help = "Format der Ausgabedatei (text oder grafisch)") 
+		parser.add_argument('ausgabedatei', type = str, help = "Pfad zur Ausgabedatei")
+		
+		args = parser.parser_args()
+		
+		if args.warteschlangen and args.quantum and args.processlistfile and args.logdatei and args.ausgabeformat and args.ausgabedatei:
+			#Verwenden der Kommandozeilenargumente
+			warteschlangen_gesamt = args.warteschlangen
+			quantum = get_quantum_for_queues(warteschlangen_gesamt, args.quantum)
+			processes = read_processes_from_file(args.processlistfile)
+			log_file_path = args.logdatei
+			timeline_file_path = args.ausgabedatei
+			output_format = args.ausgabedatei
+			file_path = args.processlistfile
+		else:
+			#Interaktive Eingabe der Parameter
+			try:
+				warteschlangen_gesamt = int(input("Gib die Anzahl der Warteschlangen an: "))
+				if warteschlangen_gesamt <= 0:
+					raise ValueError("Die Anzahl der Warteschlangen muss eine positive Zahl sein.")
+				quantum = get_quantum_for_queues(warteschlangen_gesamt)
+				file_path = input("Geben Sie den Pfad der Eingabedatei an: ")
+				processes = read_processes_from_file(file_path)
+				log_file_path = input("Geben Sie den Pfad für die Logdatei an: ")
+				timeline_file_path = input("Geben Sie den Pfad für die Timeline-Ausgabedatei an: ")
+				output_format = input("In welchem Format möchten Sie die Ausgabedatei haben? (text/grafisch): ").strip().lower()
+				
+				#Überprüfen des Ausgabeformats und des Dateipfades
+				if(output_format == "grafisch" and not timeline_file_path.endswith(".png")):
+					raise ValueError("Für das grafische Format muss die Ausgabedatei die Endung .png haben.")
+				if(output_format == "text" and not timeline_file_path.endswith(".txt")):
+					raise ValueError("Für das Textformat muss die Ausgabedatei die Endung .txt haben.")
+			except ValueError as e:
+				print(f"Ungültige Eingabe: {e}")
+				return
+				
+		#Durchführung des Round-Robin-Scheduling und Schreiben der Logdatei
+		timeline_chart = schreibe_logdatei(log_file_path, warteschlangen_gesamt, quantum, file_path, timeline_file_path, processes)
+		
+		#Schreiben der Timeline in das gewählte Format
+		if output_format == 'grafisch':
+			schreibe_timeline_diagramm(timeline_chart, processes, timeline_file_path)
+		elif output_format == 'text':
+			schreibe_timeline_txt(timeline_chart, processes, timeline_file_path)
+			
+	if __name__ == "__main__":
+		main()
+
 	while any(warteschlange for warteschlange in warteschlangen) or aktuelle_zeit < gesamtlaufzeit:
 	#Hinzufügen von Prozessen zur Warteschlange
 	prozesse_in_warteschlange_hinzufuegen(aktuelle_zeit, prozesse, warteschlangen, hinzugefuegte_prozesse, log_file)
@@ -212,58 +267,3 @@ def schreibe_logdatei(log_file_path, warteschlangen_gesamt, quantum, file_path, 
 		timeline_chart = round_robin_scheudling(warteschlangen, quantum, processes, hinzugefuegte_prozesse, log_file) #Durchführung des Round-Robin-Scheduling
 		
 		return timeline_chart
-		
-	#Hauptfunktion, die sowohl Kommandozeilenargumente als auch interaktive Eingaben unterstützt
-	def main():
-		parser = argparse.ArgumentParser(description = "Simuliert das Round-Robin-Scheduling von Prozessen.")
-		parser.add_argument('-warteschlangen', type = int, help = "Anzahl der Warteschlangen")
-		parser.add_argument('-quantum', type = int, nargs = '+', help = "Quanten pro Warteschlange")
-		parser.add_argument('-processlistfile', type = str, help = "Quanten pro Warteschlange")
-		parser.add_argument('-logdatei', type = str, help = "Pfad zur Logdatei")
-		parser.add_argument('-ausgabeformat', type = str, choices = ['text','grafisch'], help = "Format der Ausgabedatei (text oder grafisch)") 
-		parser.add_argument('ausgabedatei', type = str, help = "Pfad zur Ausgabedatei")
-		
-		args = parser.parser_args()
-		
-		if args.warteschlangen and args.quantum and args.processlistfile and args.logdatei and args.ausgabeformat and args.ausgabedatei:
-			#Verwenden der Kommandozeilenargumente
-			warteschlangen_gesamt = args.warteschlangen
-			quantum = get_quantum_for_queues(warteschlangen_gesamt, args.quantum)
-			processes = read_processes_from_file(args.processlistfile)
-			log_file_path = args.logdatei
-			timeline_file_path = args.ausgabedatei
-			output_format = args.ausgabedatei
-			file_path = args.processlistfile
-		else:
-			#Interaktive Eingabe der Parameter
-			try:
-				warteschlangen_gesamt = int(input("Gib die Anzahl der Warteschlangen an: "))
-				if warteschlangen_gesamt <= 0:
-					raise ValueError("Die Anzahl der Warteschlangen muss eine positive Zahl sein.")
-				quantum = get_quantum_for_queues(warteschlangen_gesamt)
-				file_path = input("Geben Sie den Pfad der Eingabedatei an: ")
-				processes = read_processes_from_file(file_path)
-				log_file_path = input("Geben Sie den Pfad für die Logdatei an: ")
-				timeline_file_path = input("Geben Sie den Pfad für die Timeline-Ausgabedatei an: ")
-				output_format = input("In welchem Format möchten Sie die Ausgabedatei haben? (text/grafisch): ").strip().lower()
-				
-				#Überprüfen des Ausgabeformats und des Dateipfades
-				if(output_format == "grafisch" and not timeline_file_path.endswith(".png")):
-					raise ValueError("Für das grafische Format muss die Ausgabedatei die Endung .png haben.")
-				if(output_format == "text" and not timeline_file_path.endswith(".txt")):
-					raise ValueError("Für das Textformat muss die Ausgabedatei die Endung .txt haben.")
-			except ValueError as e:
-				print(f"Ungültige Eingabe: {e}")
-				return
-				
-		#Durchführung des Round-Robin-Scheduling und Schreiben der Logdatei
-		timeline_chart = schreibe_logdatei(log_file_path, warteschlangen_gesamt, quantum, file_path, timeline_file_path, processes)
-		
-		#Schreiben der Timeline in das gewählte Format
-		if output_format == 'grafisch':
-			schreibe_timeline_diagramm(timeline_chart, processes, timeline_file_path)
-		elif output_format == 'text':
-			schreibe_timeline_txt(timeline_chart, processes, timeline_file_path)
-			
-	if __name__ == "__main__":
-		main()
