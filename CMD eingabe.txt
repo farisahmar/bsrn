@@ -1,0 +1,1 @@
+python BSRNWerkstück2.py -queues 4 -qunatum 1 2 5 10 -processlistfile processes.txt -logfile log.txt -outputformat grafisch -outputfile ausgabe.png 
