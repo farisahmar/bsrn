@@ -1,14 +1,16 @@
 # Die Datei "processes.txt" speichert Informationen über jeden Prozess.
 # Jeder Prozess hat seine eigene Zeile, um die Informationen übersichtlich zu halten.
-# Die Werte für <Prozess-ID>, <Ankunftszeit> und <Burst-Zeit> sind durch Tabs oder Leerzeichen getrennt, um die Daten zu strukturieren und zu unterscheiden.
+# Die Werte für <Prozess-ID>, <CPU-Laufzeit> und <Ankunftszeit> sind durch Tabs oder Leerzeichen getrennt, um die Daten zu strukturieren und zu unterscheiden.
 # Die Prozess-ID ist wie eine Nummer für jeden Prozess und hilft uns, sie auseinanderzuhalten und zu verwalten.
 
-# Beispiel:
+# Prozesse:
 "A" 8 0 
 "B" 4 1
-"C" 13 5
+"C" 7 3
+"D" 13 5
+
 
 # Dieses Format ermöglicht eine einfache Zuordnung der Werte zu jedem Prozess:
 # - Die erste Zahl ist die Prozess-ID, die den Prozess eindeutig identifiziert.
-# - Die zweite Zahl ist die Ankunftszeit, zu der der Prozess im System startbereit ist.
-# - Die dritte Zahl ist die Burst-Zeit, die angibt, wie lange der Prozess dauert, bis er abgeschlossen ist.
+# - Die zweite Zahl ist die CPU-Laufzeit, zu der der Prozess im System startbereit ist.
+# - Die dritte Zahl ist die Ankunftszeit, die angibt, wie lange der Prozess dauert, bis er abgeschlossen ist.
