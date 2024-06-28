@@ -64,6 +64,7 @@ def generate_queue(number_of_queues):
 
 #Funktion zum Hinzufügen von Prozessen in die Warteschlange
 def add_process_to_queue(current_time, process_list, queue_list, added_processes, log_file):
+
 	for process in process_list: # Schleife, die durch alle Prozesse iteritiert
 		if current_time >= process.arrival_time and process not in added_processes: # Überprüfung, ob die Ankunftszeit des Prozesses erreicht ist.
 			if current_time < 10:
@@ -115,28 +116,29 @@ def round_robin_scheudling(queue_list, quantum, process_list, log_file):
 					process.waiting_time = process.processing_time - process.runtime #Berechnung der Wartezeit
 					log_file.write(f"     Prozess {process.name} wurde abgeschlossen\n")
 					
-				break #Schleife für die Warteschlangen beenden, wenn kein Prozess gefunden wurde
+				break #Schleife um die Warteschlangen zu beenden, wenn kein Prozess gefunden wurde
 				
 		if not process_runned:
-			current_time += 1 #Erhöhung der aktuellen Zeit, wenn kein Prozess gelaufen ist
+			current_time += 1 # Erhöhung der aktuellen Zeit, wenn kein Prozess gelaufen ist
 
+	log_file.close() # Schließen der Logdatei
 	return timeline_data
 	
 #Funktion zur Generierung der Warteschlangenfarben
 def generate_colors(num_colors):
-	colors = pyplt.get_cmap('tab10', num_colors) #Nutzung der 'tab10' Farbkarte von matplotlib, um die Fraben besser voneienader unterscheiden zu können
+	colors = pyplt.get_cmap('tab20', num_colors) #Nutzung der 'tab20' Farbkarte von matplotlib, um die Fraben besser voneienader unterscheiden zu können
 	return [colors(i) for i in range(num_colors)] #Rückgabe der Farben
 
-#Funktion zum Schreiben der Timeline-Diagramme in einer PNG-Datei
+# Funktion zum Schreiben der Timeline-Diagramme in einer PNG-Datei
 def generate_timeline_chart(timeline_data, process_list, timeline_file_path):
-	times = [time for time, i, i in timeline_data] #Extraktion der Zeiten aus der Timeline
-	process_name = [name for i, name, i in timeline_data] #Extraktion der Prozessnamen aus der Timeline
-	queues_indices = [queue for i, i, queue in timeline_data] #Extraktion der Warteschlangen-Indizes aus der Timeline
+	times = [time for time, i, i in timeline_data] # Extraktion der Zeiten aus der Timeline
+	process_name = [name for i, name, i in timeline_data] # Extraktion der Prozessnamen aus der Timeline
+	queues_indices = [queue for i, i, queue in timeline_data] # Extraktion der Warteschlangen-Indizes aus der Timeline
 
-	#Generiere unterscheidbare Farben für die Warteschlangen
-	queue_color = {}
-	unique_queues = sorted(set(queues_indices)) #Identifikation der einzigartigen Warteschlangen
-	colors = generate_colors(len(unique_queues))  #Generierung von Farben für jede Warteschlange
+	# Generiert unterscheidbare Farben für die Warteschlangen
+	queue_color = {} # Dictionary um den Wartschlangen eine Entsprechende Farbe zuzuordnen
+	unique_queues = sorted(set(queues_indices)) # Identifikation der einzigartigen Warteschlangen
+	colors = generate_colors(len(unique_queues))  # Generierung von Farben für jede Warteschlange
 
 	for queue, color in zip(unique_queues, colors):
 		queue_color[queue] = color #Zuordnug der Farben zu den Warteschlangen
@@ -152,7 +154,7 @@ def generate_timeline_chart(timeline_data, process_list, timeline_file_path):
 	table = ax.table(cellText=table_data, cellColours=colors, cellLoc='center', loc='center') #Hinzufügen der Tabelle zur Figur
 	table.scale(1, 2) #Skalierung der Tabelle
 
-	ax.axis('off') #Deaktivierung der Achsen
+	ax.axis('off') #Deaktivierung der X/Y-Achsen
 
 	#Erstellung der Legende
 	legend_elements = [pyplt.Line2D([0], [0], color=color, lw=4, label=f'Warteschlange {queue}') for queue, color in queue_color.items()]
@@ -161,8 +163,8 @@ def generate_timeline_chart(timeline_data, process_list, timeline_file_path):
 	#Berechnung der Wartezeiten und Durchlaufzeit
 	total_waiting_time = sum(process.waiting_time for process in process_list) #Summe der Wartezeiten aller Prozesse
 	total_processing_time = sum(process.processing_time for process in process_list) #Summe der Durchlaufzeitaller Prozesse
-	avg_waiting_time = total_waiting_time / len(process_list) #Durchschnittliche Wartezeit
-	avg_processing_time = total_processing_time / len(process_list) #Durchschnittliche Durchlaufzeit
+	avg_waiting_time = round(total_waiting_time / len(process_list),2) #Durchschnittliche Wartezeit gerundet auf 2 Nachkommastellen
+	avg_processing_time = round(total_processing_time / len(process_list),2) #Durchschnittliche Durchlaufzeit gerundet auf 2 Nachkommastellen
 
 	#Hinzufügen von Laufzeiten und Wartezeiten Informationen
 	info_text = 'Laufzeiten und Wartezeiten:\n'
@@ -187,8 +189,8 @@ def generate_timeline_text(timeline_data, process_list, timeline_file_path):
 			#Berechnung der Wartezeiten und Durchlaufzeiten
 		total_waiting_time = sum(process.waiting_time for process in process_list) #Summe der Wartezeiten aller Prozesse
 		total_turnaround_time = sum(process.processing_time for process in process_list) #Summe der Durchlaufzeiten aller Prozesse
-		avg_waiting_time = total_waiting_time / len(process_list) #Durchschnittliche Wartezeit
-		avg_turnaround_time = total_turnaround_time / len(process_list) #Durchschnittliche Durchlaufzeit
+		avg_waiting_time = round(total_waiting_time / len(process_list),2) #Durchschnittliche Wartezeit gerundet auf 2 Nachkommastellen
+		avg_turnaround_time = round(total_turnaround_time / len(process_list),2) #Durchschnittliche Durchlaufzeit gerundet auf 2 Nachkommastellen
 
 			#Hinzufügen von Laufzeiten und Wartezeiten Informationen
 		text_file.write("\nLaufzeit und Wartezeiten:\n")
@@ -196,7 +198,8 @@ def generate_timeline_text(timeline_data, process_list, timeline_file_path):
 			text_file.write(
 				f"{process.name}: Laufzeit: {process.runtime}, Wartezeit: {process.waiting_time}, Gesamtlaufzeit: {process.processing_time}\n") #Schreiben der Laufzeiten und Wartezeiten der Prozesse in die TextDatei
 		text_file.write(f"Durchschnittliche Wartezeit: {avg_waiting_time}\n")
-		text_file.write(f"Durschnittliche Gesamtlaufzeit:{avg_turnaround_time}\n")
+		text_file.write(f"Durchschnittliche Gesamtlaufzeit:{avg_turnaround_time}\n")
+		text_file.close() #Schließen der Text-Ausgabedatei
 			
 #Funktion zum Schreiben der Logdatei
 def generate_logfile(log_file_path, number_of_queues, quantum, inputfile_path, timeline_file_path, processes):
