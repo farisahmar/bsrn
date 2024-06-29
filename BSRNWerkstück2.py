@@ -17,7 +17,7 @@ def get_quantum_for_queues(number_of_queues, CLI_quantum=None):
 	quantum = [] #Liste zur Speicherung der Quanten
 	if CLI_quantum:
 		#Wenn Quanten über Kommandozeilenargumente bereitgestellt werden
-		for q in CLI_quantum: # SChleife die über alle Quanten iteritiert, die über Kommandozeileargumente bereitgestellt wurden
+		for q in CLI_quantum: # Schleife die über alle Quanten iteritiert, die über Kommandozeileargumente bereitgestellt wurden
 			quantum_value = int(q)
 			if quantum_value <= 0: # Überprüfung ob das Quantum positiv ist
 				raise ValueError("Quantum muss eine positive Zahl sein.")
@@ -126,7 +126,7 @@ def round_robin_scheudling(queue_list, quantum, process_list, log_file):
 	
 #Funktion zur Generierung der Warteschlangenfarben
 def generate_colors(num_colors):
-	colors = pyplt.get_cmap('tab20', num_colors) #Nutzung der 'tab20' Farbkarte von matplotlib, um die Fraben besser voneienader unterscheiden zu können
+	colors = pyplt.get_cmap('tab20', num_colors) #Nutzung der 'tab20' Farbkarte von matplotlib, um die Farben besser voneinander unterscheiden zu können
 	return [colors(i) for i in range(num_colors)] #Rückgabe der Farben
 
 # Funktion zum Schreiben der Timeline-Diagramme in einer PNG-Datei
@@ -141,7 +141,7 @@ def generate_timeline_chart(timeline_data, process_list, timeline_file_path):
 	colors = generate_colors(len(unique_queues))  # Generierung von Farben für jede Warteschlange
 
 	for queue, color in zip(unique_queues, colors):
-		queue_color[queue] = color #Zuordnug der Farben zu den Warteschlangen
+		queue_color[queue] = color #Zurodnug der Farben zu den Warteschlangen
 
 	color = [queue_color[queue] for queue in queues_indices] #Zuordnung der Farben zu den Timeline-Daten
 
