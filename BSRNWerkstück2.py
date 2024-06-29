@@ -121,7 +121,7 @@ def round_robin_scheudling(queue_list, quantum, process_list, log_file):
 		if not process_runned:
 			current_time += 1 # Erhöhung der aktuellen Zeit, wenn kein Prozess gelaufen ist
 
-	log_file.close() # Schließen der Logdatei
+
 	return timeline_data
 	
 #Funktion zur Generierung der Warteschlangenfarben
@@ -199,7 +199,7 @@ def generate_timeline_text(timeline_data, process_list, timeline_file_path):
 				f"{process.name}: Laufzeit: {process.runtime}, Wartezeit: {process.waiting_time}, Gesamtlaufzeit: {process.processing_time}\n") #Schreiben der Laufzeiten und Wartezeiten der Prozesse in die TextDatei
 		text_file.write(f"Durchschnittliche Wartezeit: {avg_waiting_time}\n")
 		text_file.write(f"Durchschnittliche Gesamtlaufzeit:{avg_turnaround_time}\n")
-		text_file.close() #Schließen der Text-Ausgabedatei
+
 			
 #Funktion zum Schreiben der Logdatei
 def generate_logfile(log_file_path, number_of_queues, quantum, inputfile_path, timeline_file_path, processes):
